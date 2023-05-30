@@ -1,7 +1,8 @@
-from abc import abstractmethod
 from typing import Dict
 from pydantic import AnyUrl
 from aiohttp import ClientSession
+
+from app.settings import settings
 
 
 class BaseAPI():
@@ -21,6 +22,7 @@ class BaseAPI():
         await self._session.close()
 
     @staticmethod
-    @abstractmethod
     def get_headers() -> Dict[str, str]:
-        pass
+        return {
+            "Autorization": settings.BOT_TOKEN.get_secret_value()
+        }

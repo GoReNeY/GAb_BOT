@@ -2,10 +2,10 @@ from app.services.Base_API import BaseAPI
 from app.settings import settings
 from app.models.game import Game
 
-from typing import List, Dict
+from typing import List
 
 
-class GAbAPI(BaseAPI):
+class GamesAPI(BaseAPI):
 
     _base_url = settings.API_URL
 
@@ -16,7 +16,3 @@ class GAbAPI(BaseAPI):
     async def get_free_games_by_platform(self, platform) -> List[Game]:
         async with self._session.get("/free_games/giveaway_p", params={"platform": platform}) as responce:
             return await responce.json()
-
-    @staticmethod
-    def get_headers() -> Dict[str, str]:
-        return {}

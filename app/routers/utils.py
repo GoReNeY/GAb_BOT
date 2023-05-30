@@ -11,5 +11,6 @@ async def deny_fsm(query: CallbackQuery, state: FSMContext) -> None:
 
     await state.clear()
 
-    await query.message.answer("Редагування категорій закінчено.")  # type: ignore
+    await query.message.answer("Діалог закінчено.")  # type: ignore
+    await query.message.delete()  # type: ignore
     await query.answer()

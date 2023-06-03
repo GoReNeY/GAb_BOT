@@ -18,6 +18,8 @@ async def platforms_menu(message: Message, state: FSMContext) -> None:
 
     async with DatabaseAPI() as api:
         platforms_dict = await api.get_user_platforms(message.from_user.id)  # type: ignore
+        if platforms_dict.get("Access Denied"):
+            return
 
     if platforms_dict.get("not_in_db"):
         platforms_dict = {key: False for key in settings.PLATFORMS}
@@ -56,6 +58,7 @@ async def platforms_menu_processing(query: CallbackQuery, state: FSMContext) -> 
         await query.message.answer("Редагування категорій закінчено.")   # type: ignore
         await query.message.delete()   # type: ignore
         await query.answer()
+        await state.clear()
         return
 
     if platforms_dict[query.data]:  # type: ignore

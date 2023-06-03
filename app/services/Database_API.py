@@ -1,9 +1,9 @@
-import json
-
 from app.services.Base_API import BaseAPI
 from app.settings import settings
 
 from typing import Dict
+
+import json
 
 
 class DatabaseAPI(BaseAPI):
@@ -14,7 +14,7 @@ class DatabaseAPI(BaseAPI):
         async with self._session.get("/database/platforms", params={'user_id': user_id}) as responce:
             return await responce.json()
 
-    async def set_user_platforms(self, user_id: int, data: dict) -> Dict[str, bool]:
+    async def set_user_platforms(self, user_id: int, data: dict[str, bool]) -> Dict[str, bool]:
 
         platforms = json.dumps(data)
 

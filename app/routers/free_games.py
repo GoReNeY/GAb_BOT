@@ -4,9 +4,11 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardButton
 from aiogram.types.input_media_photo import InputMediaPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State
 
 from app.services.Games_API import GamesAPI
 from app.services.Database_API import DatabaseAPI
+from app.services.Utils_API import UtilsAPI
 
 from app.states.games_states import Games_States
 
@@ -17,7 +19,7 @@ from app.models.game import Game
 free_games_router = Router()
 
 
-@free_games_router.message(Command("games"))
+@free_games_router.message(Command("games"), State(None))
 async def games(message: Message, state: FSMContext) -> None:
 
     async with DatabaseAPI() as api:
@@ -30,12 +32,17 @@ async def games(message: Message, state: FSMContext) -> None:
         raw_games: list[dict] | None = await api.get_free_games_by_platforms(platforms_list, type="game")
 
     if not raw_games:
-        await message.answer("Нажаль на даний момент роздач ігор по вашим категоріям немає.")
+        await message.answer("Нажаль на даний момент роздач ігр по вашим категоріям немає.")
         return
 
     games_to_show: list[Game] = list(map(lambda game: Game.parse_obj(game), raw_games))
 
     game = games_to_show[0]
+
+    async with UtilsAPI() as api:
+        game.description = await api.translate(game.description)
+        game.price = await api.convert(game.price)
+
     game_message = GAME_MESSAGE.format(game.open_giveaway,
                                        game.title,
                                        game.description,
@@ -60,7 +67,7 @@ async def games(message: Message, state: FSMContext) -> None:
 async def showing_games(query: CallbackQuery, state: FSMContext) -> None:
 
     if query.data == "leave":
-        await query.message.answer("Перегляд ігор закінчено.")   # type: ignore
+        await query.message.answer("Перегляд ігр закінчено.")   # type: ignore
         await query.message.delete()   # type: ignore
         await query.answer()
         await state.clear()
@@ -98,6 +105,10 @@ async def showing_games(query: CallbackQuery, state: FSMContext) -> None:
                          InlineKeyboardButton(text="➡️", callback_data="next"), width=2)
 
     keyboard_builder.row(InlineKeyboardButton(text="Вийти", callback_data='leave'))
+
+    async with UtilsAPI() as api:
+        game.description = await api.translate(game.description)
+        game.price = await api.convert(game.price)
 
     game_message = GAME_MESSAGE.format(game.open_giveaway,
                                        game.title,

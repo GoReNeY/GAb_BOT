@@ -4,9 +4,11 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardButton
 from aiogram.types.input_media_photo import InputMediaPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State
 
 from app.services.Games_API import GamesAPI
 from app.services.Database_API import DatabaseAPI
+from app.services.Utils_API import UtilsAPI
 
 from app.states.loot_states import Loot_States
 
@@ -17,7 +19,7 @@ from app.models.game import Game
 free_loot_router = Router()
 
 
-@free_loot_router.message(Command("loot"))
+@free_loot_router.message(Command("loot"), State(None))
 async def loot(message: Message, state: FSMContext) -> None:
 
     async with DatabaseAPI() as api:
@@ -36,6 +38,11 @@ async def loot(message: Message, state: FSMContext) -> None:
     loot_to_show: list[Game] = list(map(lambda game: Game.parse_obj(game), raw_loot))
 
     loot = loot_to_show[0]
+
+    async with UtilsAPI() as api:
+        loot.description = await api.translate(loot.description)
+        loot.price = await api.convert(loot.price)
+
     loot_message = GAME_MESSAGE.format(loot.open_giveaway,
                                        loot.title,
                                        loot.description,
@@ -98,6 +105,10 @@ async def showing_loot(query: CallbackQuery, state: FSMContext) -> None:
                          InlineKeyboardButton(text="➡️", callback_data="next"), width=2)
 
     keyboard_builder.row(InlineKeyboardButton(text="Вийти", callback_data='leave'))
+
+    async with UtilsAPI() as api:
+        loot.description = await api.translate(loot.description)
+        loot.price = await api.convert(loot.price)
 
     loot_message = GAME_MESSAGE.format(loot.open_giveaway,
                                        loot.title,

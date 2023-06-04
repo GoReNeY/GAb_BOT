@@ -3,6 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardButton, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State
 
 from app.states.platforms_states import Platforms_Menu
 from app.services.Database_API import DatabaseAPI
@@ -11,7 +12,7 @@ from app.settings import settings
 platforms_menu_router = Router()
 
 
-@platforms_menu_router.message(Command("platforms"))
+@platforms_menu_router.message(Command("platforms"), State(None))
 async def platforms_menu(message: Message, state: FSMContext) -> None:
 
     # get запрос к апи с проверкой на наличие в БД данных о юзере

@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "gab-bot"
+name = "GAb-BOT"
 version = "0.1.0"
 description = "GAb Bot"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
-packages = [{include = "app"}]
+packages = [{include="app"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
